@@ -1,0 +1,24 @@
+service: effervescent-members
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+
+functions:
+  addMember:
+    handler: handler.addMember
+    events:
+      - sechedule: rate(5 minutes)
+    environment:
+      DDB_TABLE:
+        Fn::GetAtt:
+          - Members
+          - Arn
+
+resources:
+  Resources:
+    Members:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        TableName: "effervescent-members"
