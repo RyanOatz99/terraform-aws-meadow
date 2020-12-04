@@ -1,4 +1,4 @@
-service: effervescent-members
+service: meadow
 frameworkVersion: '2'
 
 provider:
@@ -21,4 +21,4 @@ resources:
     Members:
       Type: "AWS::DynamoDB::Table"
       Properties:
-        TableName: "effervescent-members"
+        TableName: "meadow-members"

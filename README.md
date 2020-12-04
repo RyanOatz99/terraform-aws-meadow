@@ -1,3 +1,3 @@
-# Effervescent Members
+# Meadow
 
-A serverless application for signing up, managing and sending emails to members.
+A Grassroots Membership System
