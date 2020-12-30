@@ -30,6 +30,7 @@ jobs:
           name: Run tests
           command: |
             TEST_DOMAIN=$(cat /tmp/test_domain)
+            pip install pytest-bdd
             pytest
       
       - run:
