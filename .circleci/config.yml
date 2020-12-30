@@ -5,6 +5,7 @@ orbs:
 
 jobs:
   deploy_test_destroy:
+    context: testing
     executor:
       name: node/default
       tag: 'lts'
