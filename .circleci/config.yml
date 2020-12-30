@@ -16,9 +16,9 @@ jobs:
       - run:
           name: Install Python, Pip, Pytest and Pytest-BDD
           command: |
-            apt update
-            apt install python3-pip
-            pip install pytest-bdd
+            sudo apt update
+            sudo apt install python3-pip
+            sudo pip install pytest-bdd
 
       - run:
           name: Deploy Meadow
