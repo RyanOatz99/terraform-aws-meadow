@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   deploy_test_destroy:
     docker:
-      image: cimg/node:lts
+      - image: cimg/node:lts
     steps:
       - checkout
 
