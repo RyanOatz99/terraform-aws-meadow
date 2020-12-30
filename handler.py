@@ -1,5 +1,7 @@
-import os
-import boto3
+import json
 
-def addMember(event, context):
-    print("Bang! And the member's added!")
+def newsletter_signup(event, context):
+    return {
+        'statusCode': 200,
+        'body': json.dumps("Thank you!")
+    }

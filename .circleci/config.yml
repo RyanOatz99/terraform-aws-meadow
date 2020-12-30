@@ -1,0 +1,42 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.1
+
+jobs:
+  deploy_test_destroy:
+    executor:
+      name: node/default
+      tag: 'lts'
+    steps:
+      - checkout
+
+      - run:
+          name: Install Serverless CLI and dependencies
+          command: |
+            sudo npm i -g serverless
+            npm install
+      
+      - run:
+          name: Deploy Meadow
+          command: serverless deploy --conceal
+
+      - run:
+          name: Fetch API Gateway domain
+          command: serverless info|grep "/newsletter_signup"|cut -d '/' -f3 > /tmp/test_domain
+
+
+      - run:
+          name: Run tests
+          command: |
+            TEST_DOMAIN=$(cat /tmp/test_domain)
+            pytest
+      
+      - run:
+          name: Remove Meadow
+          command: serverless remove
+
+workflows:
+  pull-request:
+    jobs:
+      - deploy_test_destroy

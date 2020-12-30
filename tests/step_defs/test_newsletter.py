@@ -21,12 +21,12 @@ def signup_page_url():
     data = {
         'email': email
     }
-    response = requests.post(url, data = data)
+    try:
+        response = requests.post(url, data = data)
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
     return response
 
 @then("I should be thanked for signing up")
 def entered_email(response):
-    if "Thank you" in response:
-        assert True
-    else:
-        assert False
+    assert "Thank you" in response.text

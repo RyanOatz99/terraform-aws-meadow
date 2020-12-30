@@ -6,19 +6,7 @@ provider:
   runtime: python3.8
 
 functions:
-  addMember:
-    handler: handler.addMember
+  newsletter_signup:
+    handler: handler.newsletter_signup
     events:
-      - sechedule: rate(5 minutes)
-    environment:
-      DDB_TABLE:
-        Fn::GetAtt:
-          - Members
-          - Arn
-
-resources:
-  Resources:
-    Members:
-      Type: "AWS::DynamoDB::Table"
-      Properties:
-        TableName: "meadow-members"
+      - httpApi: "POST /newsletter_signup"
