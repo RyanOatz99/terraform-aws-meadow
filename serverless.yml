@@ -7,6 +7,6 @@ provider:
 
 functions:
   newsletter_signup:
-    handler: handler.newsletter_signup
+    handler: handlers/newsletter.signup
     events:
       - httpApi: "POST /newsletter_signup"
