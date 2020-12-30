@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@4.1
+  python: circleci/python@1.3.2
 
 jobs:
   deploy_test_destroy:
@@ -17,6 +18,8 @@ jobs:
             sudo npm i -g serverless
             npm install
       
+      - python/install-packages:
+          pkg-manager: pip
       - run:
           name: Deploy Meadow
           command: serverless deploy --conceal
@@ -30,7 +33,6 @@ jobs:
           name: Run tests
           command: |
             TEST_DOMAIN=$(cat /tmp/test_domain)
-            pip install pytest-bdd
             pytest
       
       - run:
