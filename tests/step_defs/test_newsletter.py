@@ -1,28 +1,32 @@
-import random
+import os
+import requests
+from functools import partial
 from pytest_bdd import scenario, given, when, then
 
-@scenario('newsletter.feature', 'Reader signs up to receive the newsletter')
-def test_newsletter():
+test_domain = os.environ['TEST_DOMAIN']
+build_number = os.environ['CIRCLE_BUILD_NUM']
+
+scenario = partial(scenario, "newsletter_signup.feature")
+
+# Scenarios
+@scenario('Reader signs up to receive the newsletter')
+def test_newsletter_new_signup():
     pass
 
-@given("I am on the signup page")
-def signup_page():
-    url = website_endpoint + '/newsletter_signup'
-
-@given("I have not signed up before")
-def new_user():
-    # Creating a random email address, unlikely to be in the database
-    email = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) + '@' + test_domain
-
-@when("I enter my email address")
-def enter_email():
-    assert blah
-    # Enter email into web page
+# Steps
+@given("I sign up with a new email address", target_fixture='response')
+def signup_page_url():
+    url = 'https://' + test_domain + '/newsletter_signup'
+    email = 'success+' + build_number + '@simulator.amazonses.com'
+    data = {
+        'email': email
+    }
+    response = requests.post(url, data = data)
+    return response
 
 @then("I should be thanked for signing up")
-def entered_email():
-    "thank you" in response.text.lowercase()
-
-@then("")
-def received_optin_request():
-    # Email received
+def entered_email(response):
+    if "Thank you" in response:
+        assert True
+    else:
+        assert False
