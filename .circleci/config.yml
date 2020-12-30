@@ -1,14 +1,9 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@4.1
-  python: circleci/python@1.3.2
-
 jobs:
   deploy_test_destroy:
-    executor:
-      name: node/default
-      tag: 'lts'
+    docker:
+      image: cimg/node:lts
     steps:
       - checkout
 
@@ -18,8 +13,13 @@ jobs:
             sudo npm i -g serverless
             npm install
       
-      - python/install-packages:
-          pkg-manager: pip
+      - run:
+          name: Install Python, Pip, Pytest and Pytest-BDD
+          command: |
+            apt update
+            apt install python3-pip
+            pip install pytest-bdd
+
       - run:
           name: Deploy Meadow
           command: serverless deploy --conceal
