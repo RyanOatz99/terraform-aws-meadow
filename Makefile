@@ -1,4 +1,4 @@
-.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test
+.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test sls-deploy sls-remove sls-info
 
 .slsbin/serverless: # Installs serverless framework
 	mkdir .slsbin
@@ -27,19 +27,19 @@ install:
 update-requirements: install
 	.venv/bin/pip freeze > requirements.txt
 
-.venv/bin/black: # Installs black code formatter
+.venv/bin/black: .venv/bin/pip
 	.venv/bin/pip install -U black
 
-.venv/bin/isort: # Installs isort to sort imports
+.venv/bin/isort: .venv/bin/pip
 	.venv/bin/pip install -U isort
 
-.venv/bin/flake8: # Installs flake8 code linter
+.venv/bin/flake8: .venv/bin/pip
 	.venv/bin/pip install -U flake8
 
-.venv/bin/pytest: # Installs pytest
+.venv/bin/pytest: .venv/bin/pip
 	.venv/bin/pip install -U pytest
 
-.venv/bin/pytest-bdd:
+.venv/bin/pytest-bdd: .venv/bin/pip
 	.venv/bin/pip install -U pytest-bdd
 
 black: .venv/bin/black # Formats code with black
