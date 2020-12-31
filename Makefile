@@ -27,19 +27,19 @@ install:
 update-requirements: install
 	.venv/bin/pip freeze > requirements.txt
 
-.venv/bin/black: .venv/bin/pip
+.venv/bin/black:
 	.venv/bin/pip install -U black
 
-.venv/bin/isort: .venv/bin/pip
+.venv/bin/isort:
 	.venv/bin/pip install -U isort
 
-.venv/bin/flake8: .venv/bin/pip
+.venv/bin/flake8:
 	.venv/bin/pip install -U flake8
 
-.venv/bin/pytest: .venv/bin/pip
+.venv/bin/pytest:
 	.venv/bin/pip install -U pytest
 
-.venv/bin/pytest-bdd: .venv/bin/pip
+.venv/bin/pytest-bdd:
 	.venv/bin/pip install -U pytest-bdd
 
 black: .venv/bin/black # Formats code with black

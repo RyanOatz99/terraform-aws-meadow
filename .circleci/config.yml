@@ -8,6 +8,10 @@ jobs:
       - checkout
 
       - run:
+          name: Prepare environment
+          command: make install
+
+      - run:
           name: Run conformity tests
           command: make conformity-tests
 
@@ -31,7 +35,7 @@ jobs:
           command: make sls-remove
 
 workflows:
-  pull-request:
+  main:
     jobs:
       - deploy_test_destroy:
           context: testing
