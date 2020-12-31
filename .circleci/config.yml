@@ -3,45 +3,32 @@ version: 2.1
 jobs:
   deploy_test_destroy:
     docker:
-      - image: cimg/node:lts
+      - image: cimg/python:3.9
     steps:
       - checkout
 
       - run:
-          name: Install Serverless CLI and dependencies
-          command: |
-            sudo npm i -g serverless
-            npm install
-      
+          name: Run conformity tests
+          command: make conformity-tests
+
       - run:
-          name: Install Python, Pip, Pytest and Pytest-BDD
-          command: |
-            sudo apt update
-            sudo apt install python3-pip
-            sudo pip3 install pytest-bdd
+          name: Run unit tests
+          command: make unit-tests
 
       - run:
           name: Deploy Meadow
-          command: serverless deploy --conceal
+          command: make sls-deploy
 
       - run:
-          name: Fetch API Gateway domain
-          command: serverless info|grep "/newsletter_signup"|cut -d '/' -f3 > /tmp/test_domain
-
-
-      - run:
-          name: Run tests
-          command: |
-            export TEST_DOMAIN=$(cat /tmp/test_domain)
-            mkdir test-results
-            pytest --junitxml=test-results/junit.xml
+          name: Run feature tests
+          command: make feature-tests
 
       - store_test_results:
           path: test-results
       
       - run:
           name: Remove Meadow
-          command: serverless remove
+          command: make sls-remove
 
 workflows:
   pull-request:

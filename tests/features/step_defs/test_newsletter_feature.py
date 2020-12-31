@@ -1,9 +1,11 @@
-import requests
 from functools import partial
-from pytest_bdd import scenario, given, when, then
-from step_defs import test_domain, build_number
+
+import requests
+from pytest_bdd import given, scenario, then
+from step_defs import build_number, test_domain
 
 scenario = partial(scenario, "newsletter_signup.feature")
+
 
 # Scenarios
 @scenario("Reader signs up to receive the newsletter")

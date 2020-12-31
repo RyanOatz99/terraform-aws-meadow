@@ -1,6 +1,12 @@
 service: meadow
 frameworkVersion: '2'
 
+package:
+  exclude:
+    - "**"
+  include:
+    - "handlers/*"
+
 provider:
   name: aws
   runtime: python3.8

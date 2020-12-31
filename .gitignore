@@ -142,6 +142,8 @@ admin.env
 .env
 _meta
 .serverless
+node_modules
+.slsbin
 
 #OS STUFF
 .DS_Store
