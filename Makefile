@@ -19,7 +19,7 @@ sls-info: .slsbin/serverless
 virtual: .venv/bin/pip # Creates an isolated python 3 environment
 
 .venv/bin/pip:
-	virtualenv -p /usr/bin/python3 .venv
+	virtualenv .venv
 
 install: virtual
 	.venv/bin/pip install -Ur requirements.txt
@@ -58,3 +58,7 @@ unit-tests: .venv/bin/pytest # Runs unit tests
 
 feature-tests: .venv/bin/pytest-bdd # Runs feature tests
 	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/py.test tests/features --gherkin-terminal-reporter-expanded
+
+ci-tests:
+	mkdir test-results
+	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/pytest --junitxml=test-results/junit.xml
