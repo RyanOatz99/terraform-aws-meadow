@@ -1,28 +1,12 @@
 .PHONY: virtual install build-requirements black isort flake8 unit-test feature-test sls-deploy sls-remove sls-info
 
-.slsbin/serverless: # Installs serverless framework
-	mkdir .slsbin
-	curl -L -o .slsbin/serverless https://github.com/serverless/serverless/releases/download/v2.17.0/serverless-linux-x64
-	chmod +x .slsbin/serverless
-
-sls-deploy: .slsbin/serverless
-	.slsbin/serverless deploy --conceal | tee .slsbin/deploy_output
-	grep "/newsletter_signup" .slsbin/deploy_output | cut -d '/' -f3 > .slsbin/test_domain
-
-sls-remove: .slsbin/serverless
-	.slsbin/serverless remove
-	rm -f .slsbin/test_domain
-
-sls-info: .slsbin/serverless
-	.slsbin/serverless info
-
-virtual: .venv/bin/pip # Creates an isolated python 3 environment
+install: virtual
+	.venv/bin/pip install -Ur requirements.txt
 
 .venv/bin/pip:
 	virtualenv .venv
 
-install: virtual
-	.venv/bin/pip install -Ur requirements.txt
+virtual: .venv/bin/pip # Creates an isolated python 3 environment
 
 update-requirements: install
 	.venv/bin/pip freeze > requirements.txt
@@ -62,3 +46,19 @@ feature-tests: .venv/bin/pytest-bdd # Runs feature tests
 ci-tests:
 	mkdir test-results
 	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/pytest --junitxml=test-results/junit.xml
+
+.slsbin/serverless: # Installs serverless framework
+	mkdir .slsbin
+	curl -L -o .slsbin/serverless https://github.com/serverless/serverless/releases/download/v2.17.0/serverless-linux-x64
+	chmod +x .slsbin/serverless
+
+sls-deploy: .slsbin/serverless
+	.slsbin/serverless deploy --conceal | tee .slsbin/deploy_output
+	grep "/newsletter_signup" .slsbin/deploy_output | cut -d '/' -f3 > .slsbin/test_domain
+
+sls-remove: .slsbin/serverless
+	.slsbin/serverless remove
+	rm -f .slsbin/test_domain
+
+sls-info: .slsbin/serverless
+	.slsbin/serverless info
