@@ -49,7 +49,7 @@ isort: .venv/bin/isort # Sorts imports using isort
 	.venv/bin/isort . --check-only
 
 flake8: .venv/bin/flake8 # Lints code using flake8
-	flake8 --exclude .git,__pycache__,.venv
+	.venv/bin/flake8 --exclude .git,__pycache__,.venv
 
 conformity-tests: black isort flake8
 
