@@ -40,10 +40,14 @@ conformity-tests: black isort flake8
 unit-tests: .venv/bin/pytest # Runs unit tests
 	.venv/bin/pytest tests/unit
 
-feature-tests: .venv/bin/pytest-bdd # Runs feature tests
+feature-tests: .venv/bin/pytest-bdd # Runs feature tests locally
+	echo $$GMAIL_ACCESS_TOKEN > gmail_token.json
+	echo $$GMAIL_CLIENT_SECRET > client_secret.json
 	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/py.test tests/features --gherkin-terminal-reporter-expanded
 
-ci-tests:
+ci-tests: # Runs feature tests in CircleCI
+	echo $$GMAIL_ACCESS_TOKEN > gmail_token.json
+	echo $$GMAIL_CLIENT_SECRET > client_secret.json
 	mkdir test-results
 	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/pytest --junitxml=test-results/junit.xml
 
@@ -54,7 +58,7 @@ ci-tests:
 
 sls-deploy: .slsbin/serverless
 	.slsbin/serverless deploy --conceal | tee .slsbin/deploy_output
-	grep "/newsletter_signup" .slsbin/deploy_output | cut -d '/' -f3 > .slsbin/test_domain
+	grep "/signup" .slsbin/deploy_output | cut -d '/' -f3 | head -1 > .slsbin/test_domain
 
 sls-remove: .slsbin/serverless
 	.slsbin/serverless remove

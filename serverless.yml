@@ -6,13 +6,50 @@ package:
     - "**"
   include:
     - "handlers/*"
+    - "handlers/email_content/*"
 
 provider:
   name: aws
   runtime: python3.8
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - '*'
+    - Effect: Allow
+      Action:
+        - ses:*
+      Resource:
+        - '*'
+    - Effect: Allow
+      Action:
+        - ssm:*
+      Resource:
+        - '*'
 
 functions:
-  newsletter_signup:
-    handler: handlers/newsletter.signup
+  signup:
+    handler: handlers/signup.signup
     events:
-      - httpApi: "POST /newsletter_signup"
+      - httpApi: "POST /signup"
+  validate:
+    handler: handlers/validate.validate
+    events:
+      - httpApi: "GET /validate"
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: meadow-users
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
