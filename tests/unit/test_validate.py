@@ -21,7 +21,11 @@ def test_newsletter_validate_happy_path(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with correct email and random_string
     email = "test@test.test"
@@ -43,7 +47,11 @@ def test_newsletter_incorrect_email(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with incorrect email
     email = "test@wrong.email"
@@ -65,7 +73,11 @@ def test_newsletter_corrupt_encoding(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with corrupt encoding
     email = "test@test.test"
@@ -88,7 +100,11 @@ def test_newsletter_incorrect_random_string(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with incorrect random_string
     email = "test@test.test"
@@ -110,7 +126,11 @@ def test_newsletter_no_random_string(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with no random_string
     email = "test@test.test"

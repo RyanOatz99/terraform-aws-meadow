@@ -29,8 +29,12 @@ def signup(event, context):
     )
     try:
         table.put_item(
-            Item={"email": email, "random_string": random_string},
-            ConditionExpression="attribute_not_exists(email)",
+            Item={
+                "partitionKey": email,
+                "sortKey": "newsletter",
+                "random_string": random_string,
+            },
+            ConditionExpression="attribute_not_exists(partitionKey)",
         )
     except botocore.exceptions.ClientError:
         logger.info("Email already exists!")
@@ -79,7 +83,7 @@ def signup(event, context):
             Source=SENDER,
         )
         table.update_item(
-            Key={"email": email},
+            Key={"partitionKey": email, "sortKey": "newsletter"},
             UpdateExpression="SET validation_sent = :x",
             ExpressionAttributeValues={":x": True},
         )

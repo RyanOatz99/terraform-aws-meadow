@@ -28,7 +28,11 @@ def test_newsletter_signup_email_already_exists(initialise):
     # Populate with test user
     ddb.put_item(
         TableName="meadow-users",
-        Item={"email": {"S": "test@test.test"}, "random_string": {"S": "12345678"}},
+        Item={
+            "partitionKey": {"S": "test@test.test"},
+            "sortKey": {"S": "newsletter"},
+            "random_string": {"S": "12345678"},
+        },
     )
     # Validate with email
     email = "test@test.test"

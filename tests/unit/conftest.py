@@ -25,13 +25,18 @@ def initialise():
     ddb = boto3.client("dynamodb")
     ddb.create_table(
         AttributeDefinitions=[
-            {"AttributeName": "email", "AttributeType": "S"},
+            {"AttributeName": "partitionKey", "AttributeType": "S"},
+            {"AttributeName": "sortKey", "AttributeType": "S"},
         ],
         TableName="meadow-users",
         KeySchema=[
             {
-                "AttributeName": "email",
+                "AttributeName": "partitionKey",
                 "KeyType": "HASH",
+            },
+            {
+                "AttributeName": "sortKey",
+                "KeyType": "RANGE",
             },
         ],
         ProvisionedThroughput={"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
