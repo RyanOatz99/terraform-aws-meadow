@@ -23,6 +23,7 @@ def signup_page_url():
 
 
 @then("I should be thanked for signing up")
+@then("I should get a Success message")
 def entered_email(response):
     assert "Success!" in response.text
     assert response.status_code == 200
@@ -55,23 +56,53 @@ def not_received_confirmation():
     assert match == 1
 
 
-@given("I click the verify link in my confirmation email", target_fixture="response")
+@given("I click the verify link in my confirmation email", target_fixture="validation")
 def clicked_confirmation():
     gmail = Gmail()
     extractor = URLExtract()
     messages = gmail.get_unread_inbox()
     for message in messages:
-        if message.recipient == email:
+        if message.recipient == email and "Confirm your request" in message.subject:
             urls = extractor.find_urls(message.plain)
 
     try:
-        response = requests.get(urls[0])
+        validation = requests.get(urls[0])
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
-    return response
+    return validation
 
 
 @then("I should be redirected to a web page thanking me for confirming")
-def email_validated(response):
-    assert "Success!" in response.text
-    assert response.status_code == 200
+def email_validated(validation):
+    assert "Success!" in validation.text
+    assert validation.status_code == 200
+
+@given("I click the unsubscribe link in any newsletter", target_fixture="response")
+def click_unsubscribe():
+    gmail = Gmail()
+    extractor = URLExtract()
+    messages = gmail.get_unread_inbox()
+    for message in messages:
+        if message.recipient == email and "Confirm your request" in message.subject:
+            urls = extractor.find_urls(message.plain)
+
+    try:
+        validation = requests.get(urls[1])
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
+    return validation
+
+@then("I should receive an email confirming that I have unsubscribed")
+def confirm_unsubscribe():
+    gmail = Gmail()
+    retry = 20
+    match = False
+    messages = gmail.get_unread_inbox()
+    while retry != 0 and match is False:
+        sleep(5)
+        for message in messages:
+            if message.recipient == email and "unsubscribed" in message.subject:
+                match = True
+        retry = retry = 1
+
+    assert match == True

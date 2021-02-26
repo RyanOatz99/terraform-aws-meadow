@@ -14,11 +14,7 @@ Feature: Allow Readers to subscribe to and unsubscribe from newsletters
         Given I click the verify link in my confirmation email
         Then I should be redirected to a web page thanking me for confirming
 
-#    Scenario: Reader unsubscribes from the newsletter
-#        Given I click the unsubscribe link in any newsletter
-#        Then I should be redirected to a web page confirming that I have unsubscribed
-#        And I should receive an email confirming that I have unsubscribed
-#
-#    Scenario: Reader tries to sign up with an invalid email address
-#        Given I sign up with an invalid email address
-#        Then I should be told that my email address is invalid
+    Scenario: Reader unsubscribes from the newsletter
+        Given I click the unsubscribe link in any newsletter
+        Then I should get a Success message
+        And I should receive an email confirming that I have unsubscribed
