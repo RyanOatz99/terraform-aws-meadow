@@ -28,10 +28,10 @@ def validate(event, context):
     # Check email exists, random_string matches, then set validated to True
     try:
         table.update_item(
-            Key={"email": email},
+            Key={"partitionKey": email, "sortKey": "newsletter"},
             UpdateExpression="SET validated = :x",
             ExpressionAttributeValues={":x": True, ":y": random_string},
-            ConditionExpression="attribute_exists(email) AND random_string = :y",
+            ConditionExpression="attribute_exists(partitionKey) AND random_string = :y",
         )
     except botocore.exceptions.ClientError as error:
         logger.info("Email does not exist, or random_string does not match!")
