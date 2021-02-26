@@ -13,6 +13,16 @@ Yes - it is _very easy_ to accidentally spend a lot of money in AWS! If this is 
 ## Okay, I'll be careful! How do I deploy it?
 
 1. Configure your AWS credentials as you would for aws-cli (if you already have them configured then skip this step).
+1. Configure the tool by modifying the following json dictionary and adding it to the SSM Parameter store, under the key `MeadowDictionary`:
+
+        {
+            "organisation": "Your Organisation Name",
+            "table": "a-valid-dynamodb-table-name",
+            "domain": "your-organisation.com",
+            "region": "yr-dply-1"
+        }
+
+1. Add your sending domain to SES (and for production, get yourself out of the sandbox).
 1. Run `make sls-deploy`
 
 That's it! To remove it from your account, use `make sls-remove` - and to get details about your deployment use `make sls-info`. Behind the scenes Serverless Framework is creating CloudFormation Stack, which you can view in AWS directly (though we do not recommend manipulating these stacks manually).

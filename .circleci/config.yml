@@ -33,6 +33,7 @@ jobs:
       - run:
           name: Remove Meadow
           command: make sls-remove
+          when: always
 
 workflows:
   main:

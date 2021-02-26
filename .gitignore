@@ -148,3 +148,7 @@ node_modules
 #OS STUFF
 .DS_Store
 .tmp
+
+#Simple Gmail
+client_secret.json
+gmail_token.json
