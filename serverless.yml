@@ -45,11 +45,15 @@ resources:
       Properties:
         TableName: meadow-users
         AttributeDefinitions:
-          - AttributeName: email
+          - AttributeName: partitionKey
+            AttributeType: S
+          - AttributeName: sortKey
             AttributeType: S
         KeySchema:
-          - AttributeName: email
+          - AttributeName: partitionKey
             KeyType: HASH
+          - AttributeName: sortKey
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
