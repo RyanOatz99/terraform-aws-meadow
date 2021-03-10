@@ -2,11 +2,7 @@ service: meadow
 frameworkVersion: '2'
 
 package:
-  exclude:
-    - "**"
-  include:
-    - "handlers/*"
-    - "handlers/email_content/*"
+  artifact: .meadow.zip
 
 provider:
   name: aws
@@ -37,6 +33,10 @@ functions:
     handler: handlers/validate.validate
     events:
       - httpApi: "GET /validate"
+  unsubscribe:
+    handler: handlers/unsubscribe.unsubscribe
+    events:
+      - httpApi: "GET /unsubscribe"
 
 resources:
   Resources:

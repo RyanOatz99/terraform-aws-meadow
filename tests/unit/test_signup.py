@@ -30,7 +30,7 @@ def test_newsletter_signup_email_already_exists(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )

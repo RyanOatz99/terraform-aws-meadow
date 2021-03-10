@@ -25,11 +25,11 @@ def validate(event, context):
         logger("Cannot fetch random_string")
         raise error
 
-    # Check email exists, random_string matches, then set validated to True
+    # Check email exists, random_string matches, then validate and subscribe the user
     try:
         table.update_item(
-            Key={"partitionKey": email, "sortKey": "newsletter"},
-            UpdateExpression="SET validated = :x",
+            Key={"partitionKey": email, "sortKey": "NEWSLETTER_SIGNUP"},
+            UpdateExpression="SET is_validated = :x, is_subscribed = :x",
             ExpressionAttributeValues={":x": True, ":y": random_string},
             ConditionExpression="attribute_exists(partitionKey) AND random_string = :y",
         )

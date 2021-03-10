@@ -152,3 +152,7 @@ node_modules
 #Simple Gmail
 client_secret.json
 gmail_token.json
+
+# Meadow
+.package/
+.meadow.zip

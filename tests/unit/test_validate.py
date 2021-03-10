@@ -23,7 +23,7 @@ def test_newsletter_validate_happy_path(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )
@@ -49,7 +49,7 @@ def test_newsletter_incorrect_email(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )
@@ -75,7 +75,7 @@ def test_newsletter_corrupt_encoding(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )
@@ -102,7 +102,7 @@ def test_newsletter_incorrect_random_string(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )
@@ -128,7 +128,7 @@ def test_newsletter_no_random_string(initialise):
         TableName="meadow-users",
         Item={
             "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
+            "sortKey": {"S": "NEWSLETTER_SIGNUP"},
             "random_string": {"S": "12345678"},
         },
     )
