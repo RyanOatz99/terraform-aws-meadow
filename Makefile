@@ -57,6 +57,11 @@ ci-tests: # Runs feature tests in CircleCI
 	chmod +x .slsbin/serverless
 
 sls-deploy: .slsbin/serverless
+	mkdir -p .package/handlers
+	cp -r handlers .package/
+	.venv/bin/pip install -t .package/ -r prod-requirements.txt
+	cd .package; zip -r ../.meadow.zip ./; cd ..
+	rm -rf .package
 	.slsbin/serverless deploy --conceal | tee .slsbin/deploy_output
 	grep "/signup" .slsbin/deploy_output | cut -d '/' -f3 | head -1 > .slsbin/test_domain
 

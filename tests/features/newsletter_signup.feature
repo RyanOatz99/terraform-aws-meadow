@@ -15,6 +15,5 @@ Feature: Allow Readers to subscribe to and unsubscribe from newsletters
         Then I should be redirected to a web page thanking me for confirming
 
     Scenario: Reader unsubscribes from the newsletter
-        Given I click the unsubscribe link in any newsletter
+        Given I click the unsubscribe link in any email
         Then I should get a Success message
-        And I should receive an email confirming that I have unsubscribed

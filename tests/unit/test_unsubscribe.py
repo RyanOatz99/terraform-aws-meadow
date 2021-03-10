@@ -15,24 +15,26 @@ def api_gateway_event(payload: dict) -> dict:
         "queryStringParameters": payload,
     }
 
+
 def subscription_record() -> dict:
     return {
-            "partitionKey": {"S": "test@test.test"},
-            "sortKey": {"S": "newsletter"},
-            "random_string": {"S": "12345678"},
-            "validation_sent": {"BOOL": True},
-            "is_validated": {"BOOL": True},
-            "is_subscribed": {"BOOL": True}
-        }
+        "partitionKey": {"S": "test@test.test"},
+        "sortKey": {"S": "NEWSLETTER_SIGNUP"},
+        "random_string": {"S": "12345678"},
+        "is_validated": {"BOOL": True},
+        "is_subscribed": {"BOOL": True},
+    }
+
 
 def newsletter_record() -> dict:
     return {
-            "partitionKey": {"S": "newsletter@meadow.test"},
-            "sortKey": {"S": "NEWSLETTER_SENT#20210226"},
-            "random_string": {"S": "ABCDEFGH"},
-        }
+        "partitionKey": {"S": "test@test.test"},
+        "sortKey": {"S": "EMAIL_SENT#20210226010203"},
+        "random_string": {"S": "12345678"},
+    }
 
-def test_newsletter_validate_happy_path(initialise):
+
+def test_newsletter_unsubscribe_happy_path(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -45,13 +47,13 @@ def test_newsletter_validate_happy_path(initialise):
     )
     # Validate with correct details
     email = "test@test.test"
-    newsletter_send_date = "20210226"
-    random_string = "ABCDEFGH"
+    email_sent_date = "20210226010203"
+    random_string = "12345678"
     response = unsubscribe(
         api_gateway_event(
             {
                 "email": base64.urlsafe_b64encode(email.encode()).decode("ascii"),
-                "newsletter_sent": newsletter_send_date,
+                "email_sent": email_sent_date,
                 "random_string": random_string,
             }
         ),
@@ -61,17 +63,14 @@ def test_newsletter_validate_happy_path(initialise):
     # Check user is unsubscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
+        Key={"partitionKey": {"S": email}, "sortKey": {"S": "NEWSLETTER_SIGNUP"}},
         ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
+        ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == False
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is False
 
 
-def test_newsletter_incorrect_email(initialise):
+def test_newsletter_unsubscribe_incorrect_email(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -84,32 +83,23 @@ def test_newsletter_incorrect_email(initialise):
     )
     # Validate with incorrect email
     email = "wrong@test.test"
-    newsletter_send_date = "20210226"
-    random_string = "ABCDEFGH"
+    email_sent_date = "20210226010203"
+    random_string = "12345678"
     with pytest.raises(Exception):
         unsubscribe(
             api_gateway_event(
                 {
                     "email": base64.urlsafe_b64encode(email.encode()).decode("ascii"),
-                    "newsletter_sent": newsletter_send_date,
+                    "email_sent": email_sent_date,
                     "random_string": random_string,
                 }
             ),
             None,
         )
-    # Check user is still subscribed
-    post_unsubscribe_record = ddb.get_item(
-        TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
-        ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
-    )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == True
+    # Since the email is wrong we cannot check the user is still subscribed
 
-def test_newsletter_incorrect_send_date(initialise):
+
+def test_newsletter_unsubscribe_incorrect_send_date(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -120,16 +110,16 @@ def test_newsletter_incorrect_send_date(initialise):
         TableName="meadow-users",
         Item=newsletter_record(),
     )
-    # Validate with incorrect newsletter_send_date
+    # Validate with incorrect email_send date
     email = "test@test.test"
-    newsletter_send_date = "20200226"
-    random_string = "ABCDEFGH"
+    email_sent_date = "20200226010203"
+    random_string = "12345678"
     with pytest.raises(Exception):
         unsubscribe(
             api_gateway_event(
                 {
                     "email": base64.urlsafe_b64encode(email.encode()).decode("ascii"),
-                    "newsletter_sent": newsletter_send_date,
+                    "email_sent": email_sent_date,
                     "random_string": random_string,
                 }
             ),
@@ -138,16 +128,14 @@ def test_newsletter_incorrect_send_date(initialise):
     # Check user is still subscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
+        Key={"partitionKey": {"S": email}, "sortKey": {"S": "NEWSLETTER_SIGNUP"}},
         ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
+        ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
 
-def test_newsletter_incorrect_random_string(initialise):
+
+def test_newsletter_unsubscribe_incorrect_random_string(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -160,14 +148,14 @@ def test_newsletter_incorrect_random_string(initialise):
     )
     # Validate with incorrect random_string
     email = "test@test.test"
-    newsletter_send_date = "20210226"
+    email_sent_date = "20210226010203"
     random_string = "incorrect"
     with pytest.raises(Exception):
         unsubscribe(
             api_gateway_event(
                 {
                     "email": base64.urlsafe_b64encode(email.encode()).decode("ascii"),
-                    "newsletter_sent": newsletter_send_date,
+                    "email_sent": email_sent_date,
                     "random_string": random_string,
                 }
             ),
@@ -176,16 +164,14 @@ def test_newsletter_incorrect_random_string(initialise):
     # Check user is still subscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
+        Key={"partitionKey": {"S": email}, "sortKey": {"S": "NEWSLETTER_SIGNUP"}},
         ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
+        ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
 
-def test_newsletter_incorrect_corrupt_encoding(initialise):
+
+def test_newsletter_unsubscribe_corrupt_encoding(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -198,14 +184,16 @@ def test_newsletter_incorrect_corrupt_encoding(initialise):
     )
     # Validate with corrupt encoding
     email = "test@test.test"
-    newsletter_send_date = "20210226"
-    random_string = "ABCDEFGH"
+    email_sent_date = "20210226010203"
+    random_string = "12345678"
     with pytest.raises(Exception):
         unsubscribe(
             api_gateway_event(
                 {
-                    "email": base64.urlsafe_b64encode(email.encode()).decode("ascii") + "1",
-                    "newsletter_sent": newsletter_send_date,
+                    "email": "booo"
+                    + base64.urlsafe_b64encode(email.encode()).decode("ascii")
+                    + "y",
+                    "email_sent": email_sent_date,
                     "random_string": random_string,
                 }
             ),
@@ -214,16 +202,14 @@ def test_newsletter_incorrect_corrupt_encoding(initialise):
     # Check user is still subscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
+        Key={"partitionKey": {"S": email}, "sortKey": {"S": "NEWSLETTER_SIGNUP"}},
         ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
+        ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
 
-def test_newsletter_missing_element(initialise):
+
+def test_newsletter_unsubscribe_missing_element(initialise):
     ddb = initialise[0]
     # Populate with test user
     ddb.put_item(
@@ -234,9 +220,9 @@ def test_newsletter_missing_element(initialise):
         TableName="meadow-users",
         Item=newsletter_record(),
     )
-    # Validate with missing newsletter_send_date
-    email = "wrong@test.test"
-    random_string = "ABCDEFGH"
+    # Validate with missing email_send date
+    email = "test@test.test"
+    random_string = "12345678"
     with pytest.raises(Exception):
         unsubscribe(
             api_gateway_event(
@@ -250,11 +236,8 @@ def test_newsletter_missing_element(initialise):
     # Check user is still subscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",
-        Key={
-            "partitionKey": { "S": email },
-            "sortKey": {"S": "newsletter" }
-        },
+        Key={"partitionKey": {"S": email}, "sortKey": {"S": "NEWSLETTER_SIGNUP"}},
         ConsistentRead=True,
-        ProjectionExpression="is_subscribed"
+        ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"] == True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True

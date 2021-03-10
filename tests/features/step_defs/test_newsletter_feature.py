@@ -77,7 +77,8 @@ def email_validated(validation):
     assert "Success!" in validation.text
     assert validation.status_code == 200
 
-@given("I click the unsubscribe link in any newsletter", target_fixture="response")
+
+@given("I click the unsubscribe link in any email", target_fixture="response")
 def click_unsubscribe():
     gmail = Gmail()
     extractor = URLExtract()
@@ -91,18 +92,3 @@ def click_unsubscribe():
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
     return validation
-
-@then("I should receive an email confirming that I have unsubscribed")
-def confirm_unsubscribe():
-    gmail = Gmail()
-    retry = 20
-    match = False
-    messages = gmail.get_unread_inbox()
-    while retry != 0 and match is False:
-        sleep(5)
-        for message in messages:
-            if message.recipient == email and "unsubscribed" in message.subject:
-                match = True
-        retry = retry = 1
-
-    assert match == True

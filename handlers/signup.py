@@ -2,9 +2,11 @@ import base64
 import json
 import random
 import string
+from datetime import datetime
 
 import boto3
 import botocore
+from jinja2 import Template
 
 from handlers import initialise
 
@@ -31,7 +33,7 @@ def signup(event, context):
         table.put_item(
             Item={
                 "partitionKey": email,
-                "sortKey": "newsletter",
+                "sortKey": "NEWSLETTER_SIGNUP",
                 "random_string": random_string,
             },
             ConditionExpression="attribute_not_exists(partitionKey)",
@@ -42,23 +44,40 @@ def signup(event, context):
         return {"statusCode": 200, "body": "Success!"}
 
     # Send Validation Email
+    # This needs an EXTENSIVE rewrite once we start sending newsletters!
     SENDER = "Meadow Validation <noreply@" + meadow["domain"] + ">"
     SUBJECT = (
         "Confirm your request to recieve the " + meadow["organisation"] + " newsletter"
     )
     CHARSET = "UTF-8"
 
-    with open("handlers/email_content/validate_TEXT") as file:
-        BODY_TEXT = file.read()
+    with open("handlers/email_content/validate_TEXT.j2") as file:
+        body_template = Template(file.read())
 
-    BODY_TEXT = (
-        BODY_TEXT
-        + "https://"
+    email_sent_date = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    validation_url = (
+        "https://"
         + event["headers"]["host"]
         + "/validate?email="
         + base64.urlsafe_b64encode(email.encode()).decode("ascii")
         + "&random_string="
         + random_string
+    )
+
+    unsubscribe_url = (
+        "https://"
+        + event["headers"]["host"]
+        + "/unsubscribe?email="
+        + base64.urlsafe_b64encode(email.encode()).decode("ascii")
+        + "&random_string="
+        + random_string
+        + "&email_sent="
+        + email_sent_date
+    )
+
+    BODY_TEXT = body_template.render(
+        validation_path=validation_url, unsubscribe_path=unsubscribe_url
     )
 
     try:
@@ -82,10 +101,13 @@ def signup(event, context):
             },
             Source=SENDER,
         )
-        table.update_item(
-            Key={"partitionKey": email, "sortKey": "newsletter"},
-            UpdateExpression="SET validation_sent = :x",
-            ExpressionAttributeValues={":x": True},
+        table.put_item(
+            Item={
+                "partitionKey": email,
+                "sortKey": "EMAIL_SENT#" + email_sent_date,
+                "random_string": random_string,
+            },
+            ConditionExpression="attribute_not_exists(partitionKey)",
         )
     except botocore.exceptions.ClientError as error:
         logger.info("Could not send validation email")
