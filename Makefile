@@ -1,4 +1,4 @@
-.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test sls-deploy sls-remove sls-info
+.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test terraform-apply terraform-destroy wait-circle
 
 install: virtual
 	.venv/bin/pip install -Ur requirements.txt
@@ -27,47 +27,44 @@ update-requirements: install
 	.venv/bin/pip install -U pytest-bdd
 
 black: .venv/bin/black # Formats code with black
-	.venv/bin/black . --check
+	.venv/bin/black handlers/*.py tests --check
 
 isort: .venv/bin/isort # Sorts imports using isort
-	.venv/bin/isort . --check-only
+	.venv/bin/isort handlers/*.py tests --check-only
 
 flake8: .venv/bin/flake8 # Lints code using flake8
-	.venv/bin/flake8 --exclude .git,__pycache__,.venv
+	.venv/bin/flake8 handlers/*.py tests --exclude .git,__pycache__,.venv
 
 conformity-tests: black isort flake8
 
 unit-tests: .venv/bin/pytest # Runs unit tests
-	.venv/bin/pytest tests/unit
+	cd handlers;../.venv/bin/pytest ../tests/unit
 
 feature-tests: .venv/bin/pytest-bdd # Runs feature tests locally
 	echo $$GMAIL_ACCESS_TOKEN > gmail_token.json
 	echo $$GMAIL_CLIENT_SECRET > client_secret.json
-	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/py.test tests/features --gherkin-terminal-reporter-expanded
+	.venv/bin/py.test tests/features --gherkin-terminal-reporter-expanded
 
 ci-tests: # Runs feature tests in CircleCI
 	echo $$GMAIL_ACCESS_TOKEN > gmail_token.json
 	echo $$GMAIL_CLIENT_SECRET > client_secret.json
 	mkdir test-results
-	TEST_DOMAIN=$(shell cat .slsbin/test_domain) .venv/bin/pytest --junitxml=test-results/junit.xml
+	.venv/bin/pytest tests/features --junitxml=test-results/features.xml
+	cd handlers;../.venv/bin/pytest ../tests/unit --junitxml=../test-results/unit.xml
 
-.slsbin/serverless: # Installs serverless framework
-	mkdir .slsbin
-	curl -L -o .slsbin/serverless https://github.com/serverless/serverless/releases/download/v2.17.0/serverless-linux-x64
-	chmod +x .slsbin/serverless
 
-sls-deploy: .slsbin/serverless
-	mkdir -p .package/handlers
-	cp -r handlers .package/
-	.venv/bin/pip install -t .package/ -r prod-requirements.txt
-	cd .package; zip -r ../.meadow.zip ./; cd ..
-	rm -rf .package
-	.slsbin/serverless deploy --conceal | tee .slsbin/deploy_output
-	grep "/signup" .slsbin/deploy_output | cut -d '/' -f3 | head -1 > .slsbin/test_domain
+.bin/terraform: # Installs Terraform
+	mkdir -p tests/.bin
+	curl -L -o tests/.bin/terraform.zip https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
+	unzip tests/.bin/terraform.zip
+	mv terraform tests/.bin/
+	chmod +x tests/.bin/terraform
 
-sls-remove: .slsbin/serverless
-	.slsbin/serverless remove
-	rm -f .slsbin/test_domain
+terraform-apply: .bin/terraform
+	cd tests;.bin/terraform init;.bin/terraform apply -auto-approve;cd ..
 
-sls-info: .slsbin/serverless
-	.slsbin/serverless info
+terraform-destroy: .bin/terraform
+	cd tests;.bin/terraform destroy -auto-approve;cd ..
+
+wait-circle:
+	-curl https://meadow-testing.grassfed.tools/signup;while [ "$$?" != "0" ];do sleep 1; curl https://meadow-testing.grassfed.tools/signup;done

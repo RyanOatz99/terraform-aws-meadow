@@ -2,7 +2,7 @@ import base64
 
 import pytest
 
-from handlers.unsubscribe import unsubscribe
+from handlers.handler import unsubscribe
 
 
 def api_gateway_event(payload: dict) -> dict:

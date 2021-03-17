@@ -21,8 +21,12 @@ jobs:
 
       - run:
           name: Deploy Meadow
-          command: make sls-deploy
-
+          command: make terraform-apply
+        
+      - run:
+          name: Wait for Meadow API to be responsive
+          command: make wait-circle
+        
       - run:
           name: Run feature tests
           command: make ci-tests
@@ -32,7 +36,7 @@ jobs:
       
       - run:
           name: Remove Meadow
-          command: make sls-remove
+          command: make terraform-destroy
           when: always
 
 workflows:

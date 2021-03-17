@@ -4,7 +4,7 @@ A Grassroots Membership System
 
 ## What is Meadow?
 
-Meadow is a membership system that is built using Serverless Framework and (Python) Functions, and runs on AWS. It allows organisations of any size to take advantage of the instant elasticity of AWS Serverless technologies.
+Meadow is a membership system that is built using Terraform and (Python) Functions, and runs on AWS. It allows organisations of any size to take advantage of the instant elasticity of AWS Serverless technologies.
 
 ## Should I know anything before using it?
 
@@ -12,20 +12,20 @@ Yes - it is _very easy_ to accidentally spend a lot of money in AWS! If this is 
 
 ## Okay, I'll be careful! How do I deploy it?
 
-1. Configure your AWS credentials as you would for aws-cli (if you already have them configured then skip this step).
-1. Configure the tool by modifying the following json dictionary and adding it to the SSM Parameter store, under the key `MeadowDictionary`:
+As a prerequisite, you must have added your sending domain to AWS SES in the region you plan on deploying Meadow (and for production use, make the request to get your account out of the sandbox). You must also have a Route53 Zone for the subdomain you plan on using with meadow set up in the account you are deploying to.
 
-        {
-            "organisation": "Your Organisation Name",
-            "table": "a-valid-dynamodb-table-name",
-            "domain": "your-organisation.com",
-            "region": "yr-dply-1"
-        }
+Otherwise, Meadow is just a Terraform module! call it using:
 
-1. Add your sending domain to SES (and for production, get yourself out of the sandbox).
-1. Run `make sls-deploy`
-
-That's it! To remove it from your account, use `make sls-remove` - and to get details about your deployment use `make sls-info`. Behind the scenes Serverless Framework is creating CloudFormation Stack, which you can view in AWS directly (though we do not recommend manipulating these stacks manually).
+```
+module "meadow_production" {
+  source                = "GrassfedTools/meadow/aws"
+  organisation_name     = "Your cool organisation"
+  dynamodb_table_name   = "a-valid-dynamodb-table-name"
+  zone_id               = aws_route53_zone.yourzone_com.id
+  domain_name           = "members.yourzone.com"
+  region                = "yr-dply-1"
+}
+```
 
 ## How do I get started with development?
 
@@ -35,7 +35,7 @@ We use `black`, `isort` and `flake8` to ensure conformity - these can be run aga
 
 Unit tests are placed in `tests/unit/` and can be run with `make unit-tests`. No code will be accepted if they do not have sufficient coverage and we encourage a Test-Driven Development approach to this (but if you don't know how to do this then talk to us in the respective issue and we'll give guidance).
 
-Feature tests are placed in `tests/features/` and can be run with `make feature-tests`. Note that feature tests are end-to-end and rely on an active cloud deployment of Meadow, deployed with `sls-deploy`. Do not run tests against production deployments(!) since some testing may be destructive.
+Feature tests are placed in `tests/features/` and can be run with `make feature-tests`. Note that feature tests are end-to-end and rely on an active cloud deployment of Meadow, deployed with `terraform-apply`. Do not run tests against production deployments(!) since some testing may be destructive.
 
 ### Fixing bugs
 
@@ -50,7 +50,7 @@ Meadow is built using Behaviour-Driven Development - particularly, we use pytest
 1. Use `Scenario: ` to specify high-level scenarios that describe what a user might do with this feature, and what they would expect to happen. Describe using `Given`, `When`, `Then` syntax - and remember, a feature usually has more than one scenario.
 1. Create step definitions that define how to test each step in your new feature's scenarios, by creating a file in `tests/features/step_defs` and populating it using the necessary decorators (e.g. `@scenario` and `@given`). Again, it's recommended that you use existing step definitions as a template - and remember, all python test files must start `test_`.
 1. Once this is done you may start implementing the features:
-    - Add new functions (AWS Lambdas) and resources to `serverless.yml`
+    - Add new functions (AWS Lambdas) and resources to Terraform.
     - Write unit tests for your functions in `tests/unit` (again, remember to prefix new files with `test_`)
     - Write your functions in `handlers/`
 1. Feel free to open up a Pull Request early and keep updating it as you go along - this allows people to comment and offer guidance on how best to implement your feature within the wider project.

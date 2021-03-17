@@ -2,7 +2,7 @@ import base64
 
 import pytest
 
-from handlers.validate import validate
+from handlers.handler import validate
 
 
 def api_gateway_event(payload: dict) -> dict:
