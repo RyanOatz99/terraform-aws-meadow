@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from handlers.signup import signup
+from handlers.handler import signup
 
 
 def api_gateway_event(payload: dict) -> dict:
