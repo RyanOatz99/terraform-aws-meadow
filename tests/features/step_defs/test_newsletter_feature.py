@@ -3,7 +3,7 @@ from time import sleep
 import requests
 from pytest_bdd import given, scenarios, then
 from simplegmail import Gmail
-from step_defs import email, test_domain
+from step_defs import email, honeypot_secret, test_domain
 from urlextract import URLExtract
 
 scenarios("newsletter_signup.feature")
@@ -14,9 +14,9 @@ scenarios("newsletter_signup.feature")
 @given("I sign up with the same email address again", target_fixture="response")
 def signup_page_url():
     url = "https://" + test_domain + "/signup"
-    data = {"email": email}
+    form = {"email": email, "secret": honeypot_secret}
     try:
-        response = requests.post(url, json=data)
+        response = requests.post(url, data=form)
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
     return response

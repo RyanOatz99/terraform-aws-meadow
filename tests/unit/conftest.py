@@ -47,8 +47,9 @@ def initialise():
     ssm.put_parameter(
         Name="MeadowDictionary",
         Value=(
-            '{ "organisation": "Meadow Testing", "table": "meadow-users", '
-            '"domain": "meadow.test", "region": "us-east-1" }'
+            '{ "organisation": "Meadow Testing","table": "meadow-users", '
+            '"domain": "meadow.test", "region": "us-east-1", '
+            '"honeypot_secret": "11111111" }'
         ),
         Type="String",
     )
