@@ -2,12 +2,12 @@ Feature: Allow Readers to subscribe to and unsubscribe from newsletters
 
     Scenario: Reader signs up to receive the newsletter
         Given I sign up with a new email address
-        Then I should be thanked for signing up
+        Then I should be told to validate my email address
         And I should receive a confirmation email
 
     Scenario: Reader tries to sign up to receive the newsletter again within 14 days
         Given I sign up with the same email address again
-        Then I should be thanked for signing up
+        Then I should be told to validate my email address
         And I should not receive a confirmation email
 
     Scenario: Reader uses the confirmation email to opt-in to receiving newsletters
@@ -16,4 +16,4 @@ Feature: Allow Readers to subscribe to and unsubscribe from newsletters
 
     Scenario: Reader unsubscribes from the newsletter
         Given I click the unsubscribe link in any email
-        Then I should get a Success message
+        Then I should be told I have successfully unsubscribed

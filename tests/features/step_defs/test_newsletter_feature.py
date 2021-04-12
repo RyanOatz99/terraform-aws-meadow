@@ -10,23 +10,22 @@ scenarios("newsletter_signup.feature")
 
 
 # Steps
-@given("I sign up with a new email address", target_fixture="response")
-@given("I sign up with the same email address again", target_fixture="response")
+@given("I sign up with a new email address", target_fixture="signup")
+@given("I sign up with the same email address again", target_fixture="signup")
 def signup_page_url():
     url = "https://" + test_domain + "/signup"
     form = {"email": email, "secret": honeypot_secret}
     try:
-        response = requests.post(url, data=form)
+        signup = requests.post(url, data=form, allow_redirects=False)
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
-    return response
+    return signup
 
 
-@then("I should be thanked for signing up")
-@then("I should get a Success message")
-def entered_email(response):
-    assert "Success!" in response.text
-    assert response.status_code == 200
+@then("I should be told to validate my email address")
+def entered_email(signup):
+    assert "newsletter_validating" in signup.headers["Location"]
+    assert signup.status_code == 301
 
 
 @then("I should receive a confirmation email")
@@ -66,7 +65,7 @@ def clicked_confirmation():
             urls = extractor.find_urls(message.plain)
 
     try:
-        validation = requests.get(urls[0])
+        validation = requests.get(urls[0], allow_redirects=False)
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
     return validation
@@ -74,11 +73,11 @@ def clicked_confirmation():
 
 @then("I should be redirected to a web page thanking me for confirming")
 def email_validated(validation):
-    assert "Success!" in validation.text
-    assert validation.status_code == 200
+    assert "newsletter_success" in validation.headers["Location"]
+    assert validation.status_code == 301
 
 
-@given("I click the unsubscribe link in any email", target_fixture="response")
+@given("I click the unsubscribe link in any email", target_fixture="unsubscribed")
 def click_unsubscribe():
     gmail = Gmail()
     extractor = URLExtract()
@@ -88,7 +87,13 @@ def click_unsubscribe():
             urls = extractor.find_urls(message.plain)
 
     try:
-        validation = requests.get(urls[1])
+        unsubscribed = requests.get(urls[1], allow_redirects=False)
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
-    return validation
+    return unsubscribed
+
+
+@then("I should be told I have successfully unsubscribed")
+def email_unsubscribed(unsubscribed):
+    assert "newsletter_unsubscribed" in unsubscribed.headers["Location"]
+    assert unsubscribed.status_code == 301

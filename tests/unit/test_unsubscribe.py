@@ -59,7 +59,7 @@ def test_newsletter_unsubscribe_happy_path(initialise):
         ),
         None,
     )
-    assert response == {"statusCode": 200, "body": "Success!"}
+    assert response["statusCode"] == 301
     # Check user is unsubscribed
     post_unsubscribe_record = ddb.get_item(
         TableName="meadow-users",

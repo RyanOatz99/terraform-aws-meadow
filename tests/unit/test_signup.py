@@ -26,7 +26,7 @@ def test_newsletter_signup_happy_path(initialise):
     # Validate with email
     email = "test@test.test"
     response = signup(api_gateway_event({"email": email, "secret": "11111111"}), None)
-    assert response == {"statusCode": 200, "body": "Success!"}
+    assert response["statusCode"] == 301
 
 
 def test_newsletter_signup_email_already_exists(initialise):
@@ -43,7 +43,7 @@ def test_newsletter_signup_email_already_exists(initialise):
     # Validate with email
     email = "test@test.test"
     response = signup(api_gateway_event({"email": email, "secret": "11111111"}), None)
-    assert response == {"statusCode": 200, "body": "Success!"}
+    assert response["statusCode"] == 301
 
 
 def test_newsletter_signup_no_email(initialise):
