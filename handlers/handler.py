@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import string
+import urllib.parse
 from datetime import datetime
 
 import boto3
@@ -43,9 +44,18 @@ def signup(event, context):
 
     # Load details from event
     try:
-        email = json.loads(event["body"])["email"]
+        body = base64.b64decode(event["body"].encode("utf-8"))
+        body = urllib.parse.parse_qs(body.decode("utf-8"))
+        email = body["email"][0]
+        secret = body["secret"][0]
     except KeyError as error:
         logger.info("Could not load email from body")
+        raise error
+
+    try:
+        assert secret == "11111111"
+    except AssertionError as error:
+        logger.info("Secret does not match or does not exist")
         raise error
 
     # Add email and random_string to table, if it doesn't already exist
