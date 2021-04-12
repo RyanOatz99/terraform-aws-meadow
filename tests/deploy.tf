@@ -5,7 +5,11 @@ terraform {
       version = "~> 3.0"
     }
   }
-  backend "local" {}
+  backend "s3" {
+    bucket = "meadow-testing-terraform-state-7894313"
+    key = "state"
+    region = "eu-west-2"
+  }
 }
 
 provider "aws" {
