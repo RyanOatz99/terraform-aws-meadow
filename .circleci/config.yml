@@ -22,6 +22,10 @@ jobs:
       - run:
           name: Deploy Meadow
           command: make terraform-apply
+      
+      - run:
+          name: Sync barn
+          command: make sync-barn
         
       - run:
           name: Wait for Meadow API to be responsive

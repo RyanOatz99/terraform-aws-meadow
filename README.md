@@ -23,9 +23,12 @@ module "meadow_production" {
   dynamodb_table_name   = "a-valid-dynamodb-table-name"
   zone_id               = aws_route53_zone.yourzone_com.id
   domain_name           = "members.yourzone.com"
+  website_address       = "www.yourzone.com"
   region                = "yr-dply-1"
 }
 ```
+
+Once it's deployed you will need to populate your barn, which is an s3 bucket created by Meadow that contains jinja2 templates of transactional emails. Feel free to [use ours](https://github.com/GrassfedTools/barn-email-templates) as a jumping off point!
 
 ## How do I get started with development?
 
