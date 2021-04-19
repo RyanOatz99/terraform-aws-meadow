@@ -53,7 +53,7 @@ def signup(event, context):
         raise error
 
     try:
-        assert secret == "11111111"
+        assert secret == meadow["honeypot_secret"]
     except AssertionError as error:
         logger.info("Secret does not match or does not exist")
         raise error
@@ -77,26 +77,40 @@ def signup(event, context):
         return {
             "statusCode": 301,
             "headers": {
-                "Location": "https://" + meadow["domain"] + "/newsletter_validating"
+                "Location": "https://"
+                + meadow["website_domain"]
+                + "/newsletter_validating"
             },
         }
 
     # Send Validation Email
     # This needs an EXTENSIVE rewrite once we start sending newsletters!
-    SENDER = "Meadow Validation <noreply@" + meadow["domain"] + ">"
+    SENDER = "Meadow Validation <noreply@" + meadow["meadow_domain"] + ">"
     SUBJECT = (
         "Confirm your request to recieve the " + meadow["organisation"] + " newsletter"
     )
     CHARSET = "UTF-8"
 
-    with open("email_content/validate_TEXT.j2") as file:
-        body_template = Template(file.read())
+    s3 = boto3.resource("s3")
+    validation_html_template = Template(
+        s3.Object(meadow["barn"], "transactional/validate_HTML.j2")
+        .get()["Body"]
+        .read()
+        .decode("utf-8")
+    )
+
+    validation_text_template = Template(
+        s3.Object(meadow["barn"], "transactional/validate_TEXT.j2")
+        .get()["Body"]
+        .read()
+        .decode("utf-8")
+    )
 
     email_sent_date = datetime.now().strftime("%Y%m%d%H%M%S")
 
     validation_url = (
         "https://"
-        + meadow["domain"]
+        + meadow["meadow_domain"]
         + "/validate?email="
         + base64.urlsafe_b64encode(email.encode()).decode("ascii")
         + "&random_string="
@@ -105,7 +119,7 @@ def signup(event, context):
 
     unsubscribe_url = (
         "https://"
-        + meadow["domain"]
+        + meadow["meadow_domain"]
         + "/unsubscribe?email="
         + base64.urlsafe_b64encode(email.encode()).decode("ascii")
         + "&random_string="
@@ -114,7 +128,11 @@ def signup(event, context):
         + email_sent_date
     )
 
-    BODY_TEXT = body_template.render(
+    BODY_HTML = validation_html_template.render(
+        validation_path=validation_url, unsubscribe_path=unsubscribe_url
+    )
+
+    BODY_TEXT = validation_text_template.render(
         validation_path=validation_url, unsubscribe_path=unsubscribe_url
     )
 
@@ -127,6 +145,10 @@ def signup(event, context):
             },
             Message={
                 "Body": {
+                    "Html": {
+                        "Charset": CHARSET,
+                        "Data": BODY_HTML,
+                    },
                     "Text": {
                         "Charset": CHARSET,
                         "Data": BODY_TEXT,
@@ -155,7 +177,7 @@ def signup(event, context):
     return {
         "statusCode": 301,
         "headers": {
-            "Location": "https://" + meadow["domain"] + "/newsletter_validating"
+            "Location": "https://" + meadow["website_domain"] + "/newsletter_validating"
         },
     }
 
@@ -221,7 +243,9 @@ def unsubscribe(event, context):
     return {
         "statusCode": 301,
         "headers": {
-            "Location": "https://" + meadow["domain"] + "/newsletter_unsubscribed"
+            "Location": "https://"
+            + meadow["website_domain"]
+            + "/newsletter_unsubscribed"
         },
     }
 
@@ -260,5 +284,7 @@ def validate(event, context):
 
     return {
         "statusCode": 301,
-        "headers": {"Location": "https://" + meadow["domain"] + "/newsletter_success"},
+        "headers": {
+            "Location": "https://" + meadow["website_domain"] + "/newsletter_success"
+        },
     }

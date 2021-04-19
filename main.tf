@@ -89,8 +89,18 @@ resource "aws_ssm_parameter" "members" {
 {
   "organisation": "${var.organisation_name}",
   "table": "${var.dynamodb_table_name}",
-  "domain": "${var.domain_name}",
-  "region": "${var.region}"
+  "meadow_domain": "${var.domain_name}",
+  "website_domain": "${var.website_domain}",
+  "region": "${var.region}",
+  "barn": "${aws_s3_bucket.barn.id}",
+  "honeypot_secret": "${var.honeypot_secret}"
 }
 EOF
+}
+
+// Create email barn
+resource "aws_s3_bucket" "barn" {
+  bucket_prefix = "barn-email-templates-"
+  acl           = "private"
+  force_destroy = true
 }

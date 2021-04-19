@@ -24,7 +24,7 @@ def signup_page_url():
 
 @then("I should be told to validate my email address")
 def entered_email(signup):
-    assert "newsletter_validating" in signup.headers["Location"]
+    assert "newsletter_validating" in signup.headers["location"]
     assert signup.status_code == 301
 
 
@@ -73,7 +73,7 @@ def clicked_confirmation():
 
 @then("I should be redirected to a web page thanking me for confirming")
 def email_validated(validation):
-    assert "newsletter_success" in validation.headers["Location"]
+    assert "newsletter_success" in validation.headers["location"]
     assert validation.status_code == 301
 
 
@@ -95,5 +95,5 @@ def click_unsubscribe():
 
 @then("I should be told I have successfully unsubscribed")
 def email_unsubscribed(unsubscribed):
-    assert "newsletter_unsubscribed" in unsubscribed.headers["Location"]
+    assert "newsletter_unsubscribed" in unsubscribed.headers["location"]
     assert unsubscribed.status_code == 301

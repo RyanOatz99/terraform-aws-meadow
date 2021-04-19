@@ -20,6 +20,7 @@ resource "aws_lambda_function" "members" {
   handler          = "handler.${each.key}"
   source_code_hash = data.archive_file.meadow_zip.output_base64sha256
   runtime          = "python3.8"
+  timeout          = 60
   publish          = true
 }
 
@@ -114,6 +115,18 @@ data "aws_iam_policy_document" "meadow-lambda" {
 
     actions = [
       "ssm:*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    resources = [
+      "${aws_s3_bucket.barn.arn}/*"
+    ]
+
+    actions = [
+      "s3:GetObject"
     ]
   }
 }

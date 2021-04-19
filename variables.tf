@@ -21,3 +21,11 @@ variable "region" {
 variable "account_id" {
   type = string
 }
+
+variable "website_domain" {
+  type = string
+}
+
+variable "honeypot_secret" {
+  type = string
+}

@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "meadow-testing-terraform-state-7894313"
-    key = "state"
+    key    = "state"
     region = "eu-west-2"
   }
 }
@@ -25,5 +25,11 @@ module "meadow" {
   zone_id             = "Z0113789CFPZ63JFOFKB"
   domain_name         = "meadow-testing.grassfed.tools"
   region              = "us-east-1"
+  honeypot_secret     = "11111111"
+  website_domain      = "grassfed.tools"
   account_id          = data.aws_caller_identity.current.account_id
+}
+
+output "barn_bucket" {
+  value = module.meadow.barn_bucket
 }

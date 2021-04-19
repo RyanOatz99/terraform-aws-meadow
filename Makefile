@@ -1,4 +1,4 @@
-.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test terraform-apply terraform-destroy wait-circle
+.PHONY: virtual install build-requirements black isort flake8 unit-test feature-test terraform-apply terraform-destroy wait-circle sync-barn
 
 install: virtual
 	.venv/bin/pip install -Ur requirements.txt
@@ -25,6 +25,9 @@ update-requirements: install
 
 .venv/bin/pytest-bdd:
 	.venv/bin/pip install -U pytest-bdd
+
+.venv/bin/aws:
+	.venv/bin/pip install -U awscli
 
 black: .venv/bin/black # Formats code with black
 	.venv/bin/black handlers/*.py tests --check
@@ -61,10 +64,13 @@ ci-tests: # Runs feature tests in CircleCI
 	chmod +x tests/.bin/terraform
 
 terraform-apply: .bin/terraform
-	cd tests;.bin/terraform init;.bin/terraform apply -auto-approve;cd ..
+	cd tests;.bin/terraform init;.bin/terraform apply -auto-approve;.bin/terraform output -raw barn_bucket | tee ../barn_bucket;cd ..
 
 terraform-destroy: .bin/terraform
 	cd tests;.bin/terraform destroy -auto-approve;cd ..
 
 wait-circle:
 	-curl https://meadow-testing.grassfed.tools/signup;while [ "$$?" != "0" ];do sleep 1; curl https://meadow-testing.grassfed.tools/signup;done;sleep 60
+
+sync-barn: .venv/bin/aws
+	wget https://github.com/GrassfedTools/barn-email-templates/releases/download/v1.0.0/transactional.tar.gz;tar -zxvf transactional.tar.gz;.venv/bin/aws s3 cp transactional s3://$(shell cat barn_bucket)/transactional --recursive
