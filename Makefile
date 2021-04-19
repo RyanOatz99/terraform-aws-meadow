@@ -55,7 +55,7 @@ ci-tests: # Runs feature tests in CircleCI
 
 .bin/terraform: # Installs Terraform
 	mkdir -p tests/.bin
-	curl -L -o tests/.bin/terraform.zip https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
+	curl -L -o tests/.bin/terraform.zip https://releases.hashicorp.com/terraform/0.14.10/terraform_0.14.10_linux_amd64.zip
 	unzip tests/.bin/terraform.zip
 	mv terraform tests/.bin/
 	chmod +x tests/.bin/terraform
@@ -67,4 +67,4 @@ terraform-destroy: .bin/terraform
 	cd tests;.bin/terraform destroy -auto-approve;cd ..
 
 wait-circle:
-	-curl https://meadow-testing.grassfed.tools/signup;while [ "$$?" != "0" ];do sleep 1; curl https://meadow-testing.grassfed.tools/signup;done
+	-curl https://meadow-testing.grassfed.tools/signup;while [ "$$?" != "0" ];do sleep 1; curl https://meadow-testing.grassfed.tools/signup;done;sleep 60

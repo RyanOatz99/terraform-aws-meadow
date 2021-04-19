@@ -74,7 +74,12 @@ def signup(event, context):
     except botocore.exceptions.ClientError:
         logger.info("Email already exists!")
         # Never tell the user what happened, any error should be internal
-        return {"statusCode": 200, "body": "Success!"}
+        return {
+            "statusCode": 301,
+            "headers": {
+                "Location": "https://" + meadow["domain"] + "/newsletter_validating"
+            },
+        }
 
     # Send Validation Email
     # This needs an EXTENSIVE rewrite once we start sending newsletters!
@@ -147,7 +152,12 @@ def signup(event, context):
         raise error
 
     # Never tell the user what happened, any error should be internal
-    return {"statusCode": 200, "body": "Success!"}
+    return {
+        "statusCode": 301,
+        "headers": {
+            "Location": "https://" + meadow["domain"] + "/newsletter_validating"
+        },
+    }
 
 
 def unsubscribe(event, context):
@@ -208,7 +218,12 @@ def unsubscribe(event, context):
         logger.info("Email does not exist!")
         raise error
 
-    return {"statusCode": 200, "body": "Success!"}
+    return {
+        "statusCode": 301,
+        "headers": {
+            "Location": "https://" + meadow["domain"] + "/newsletter_unsubscribed"
+        },
+    }
 
 
 def validate(event, context):
@@ -243,4 +258,7 @@ def validate(event, context):
         logger.info("Email does not exist, or random_string does not match!")
         raise error
 
-    return {"statusCode": 200, "body": "Success!"}
+    return {
+        "statusCode": 301,
+        "headers": {"Location": "https://" + meadow["domain"] + "/newsletter_success"},
+    }

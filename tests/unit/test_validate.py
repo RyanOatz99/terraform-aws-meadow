@@ -39,7 +39,7 @@ def test_newsletter_validate_happy_path(initialise):
         ),
         None,
     )
-    assert response == {"statusCode": 200, "body": "Success!"}
+    assert response["statusCode"] == 301
 
 
 def test_newsletter_incorrect_email(initialise):
