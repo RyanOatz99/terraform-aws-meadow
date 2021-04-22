@@ -4,7 +4,7 @@ data "archive_file" "meadow_zip" {
   output_path = "${path.module}/.meadow.zip"
 }
 
-variable "handlers" {
+variable "endpoints" {
   default = {
     "signup"      = "POST"
     "validate"    = "GET"
@@ -13,7 +13,7 @@ variable "handlers" {
 }
 
 resource "aws_lambda_function" "members" {
-  for_each         = var.handlers
+  for_each         = var.endpoints
   filename         = data.archive_file.meadow_zip.output_path
   function_name    = each.key
   role             = aws_iam_role.members.arn
@@ -25,14 +25,14 @@ resource "aws_lambda_function" "members" {
 }
 
 resource "aws_lambda_permission" "members" {
-  for_each      = var.handlers
+  for_each      = var.endpoints
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.members[each.key].function_name
   principal     = "apigateway.amazonaws.com"
 }
 
 resource "aws_apigatewayv2_integration" "members" {
-  for_each           = var.handlers
+  for_each           = var.endpoints
   api_id             = aws_apigatewayv2_api.members.id
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
@@ -40,7 +40,7 @@ resource "aws_apigatewayv2_integration" "members" {
 }
 
 resource "aws_apigatewayv2_route" "members" {
-  for_each  = var.handlers
+  for_each  = var.endpoints
   api_id    = aws_apigatewayv2_api.members.id
   route_key = "${each.value} /${each.key}"
   target    = "integrations/${aws_apigatewayv2_integration.members[each.key].id}"
@@ -129,4 +129,16 @@ data "aws_iam_policy_document" "meadow-lambda" {
       "s3:GetObject"
     ]
   }
+}
+
+// Send newsletter lambda
+resource "aws_lambda_function" "send_newsletter" {
+  filename         = data.archive_file.meadow_zip.output_path
+  function_name    = "send_newsletter"
+  role             = aws_iam_role.members.arn
+  handler          = "handler.send_newsletter"
+  source_code_hash = data.archive_file.meadow_zip.output_base64sha256
+  runtime          = "python3.8"
+  timeout          = 60
+  publish          = true
 }
