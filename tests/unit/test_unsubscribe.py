@@ -21,8 +21,7 @@ def subscription_record() -> dict:
         "partitionKey": {"S": "test@test.test"},
         "sortKey": {"S": "NEWSLETTER_SIGNUP"},
         "random_string": {"S": "12345678"},
-        "is_validated": {"BOOL": True},
-        "is_subscribed": {"BOOL": True},
+        "is_subscribed": {"S": "true"},
     }
 
 
@@ -67,7 +66,7 @@ def test_newsletter_unsubscribe_happy_path(initialise):
         ConsistentRead=True,
         ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is False
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["S"] == "false"
 
 
 def test_newsletter_unsubscribe_incorrect_email(initialise):
@@ -132,7 +131,7 @@ def test_newsletter_unsubscribe_incorrect_send_date(initialise):
         ConsistentRead=True,
         ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["S"] == "true"
 
 
 def test_newsletter_unsubscribe_incorrect_random_string(initialise):
@@ -168,7 +167,7 @@ def test_newsletter_unsubscribe_incorrect_random_string(initialise):
         ConsistentRead=True,
         ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["S"] == "true"
 
 
 def test_newsletter_unsubscribe_corrupt_encoding(initialise):
@@ -206,7 +205,7 @@ def test_newsletter_unsubscribe_corrupt_encoding(initialise):
         ConsistentRead=True,
         ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["S"] == "true"
 
 
 def test_newsletter_unsubscribe_missing_element(initialise):
@@ -240,4 +239,4 @@ def test_newsletter_unsubscribe_missing_element(initialise):
         ConsistentRead=True,
         ProjectionExpression="is_subscribed",
     )
-    assert post_unsubscribe_record["Item"]["is_subscribed"]["BOOL"] is True
+    assert post_unsubscribe_record["Item"]["is_subscribed"]["S"] == "true"

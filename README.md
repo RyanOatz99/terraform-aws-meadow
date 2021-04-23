@@ -19,7 +19,7 @@ Otherwise, Meadow is just a Terraform module! call it using:
 ```
 module "meadow_production" {
   source                = "GrassfedTools/meadow/aws"
-  organisation_name     = "Your cool organisation"
+  organisation          = "Your cool organisation"
   dynamodb_table_name   = "a-valid-dynamodb-table-name"
   zone_id               = aws_route53_zone.yourzone_com.id
   domain_name           = "members.yourzone.com"

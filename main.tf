@@ -14,6 +14,20 @@ resource "aws_dynamodb_table" "members" {
     name = "sortKey"
     type = "S"
   }
+
+  attribute {
+    name = "is_subscribed"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name = "is_subscribed"
+    hash_key = "is_subscribed"
+    projection_type = "INCLUDE"
+    non_key_attributes = [ "partitionKey" ]
+    read_capacity = 1
+    write_capacity = 1
+  }
 }
 
 // Configure domain certificate

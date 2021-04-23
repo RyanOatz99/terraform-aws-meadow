@@ -1,4 +1,4 @@
-Feature: Allow Readers to subscribe to and unsubscribe from newsletters
+Feature: Allow Readers to subscribe to, receive, and unsubscribe from newsletters
 
     Scenario: Reader signs up to receive the newsletter
         Given I sign up with a new email address
@@ -13,6 +13,11 @@ Feature: Allow Readers to subscribe to and unsubscribe from newsletters
     Scenario: Reader uses the confirmation email to opt-in to receiving newsletters
         Given I click the verify link in my confirmation email
         Then I should be redirected to a web page thanking me for confirming
+
+    Scenario: Reader receives a newsletter
+        Given A newsletter is uploaded to be sent
+        And that newsletter is triggered to be sent
+        Then I should receive the newsletter
 
     Scenario: Reader unsubscribes from the newsletter
         Given I click the unsubscribe link in any email
