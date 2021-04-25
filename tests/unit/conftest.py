@@ -19,12 +19,12 @@ def initialise():
     boto3.setup_default_session()
 
     # Create mock verified SES users
-    ses = boto3.client("ses")
+    ses = boto3.client("ses", region_name="us-east-1")
     ses.verify_email_identity(EmailAddress="noreply@meadow.test")
     ses.verify_email_identity(EmailAddress="test@test.test")
 
     # Create mock users DynamoDB table
-    ddb = boto3.client("dynamodb")
+    ddb = boto3.client("dynamodb", region_name="us-east-1")
     ddb.create_table(
         AttributeDefinitions=[
             {"AttributeName": "partitionKey", "AttributeType": "S"},
@@ -64,7 +64,7 @@ def initialise():
     )
 
     # Create mock SSM
-    ssm = boto3.client("ssm")
+    ssm = boto3.client("ssm", region_name="us-east-1")
     ssm.put_parameter(
         Name="MeadowDictionary",
         Value=(
@@ -76,7 +76,7 @@ def initialise():
     )
 
     # Create mock s3 barn
-    s3 = boto3.client("s3")
+    s3 = boto3.client("s3", region_name="us-east-1")
     mock_email = """
     Did you sign up to this newsletter?
     If so, follow this path: {{ validation_path }}
