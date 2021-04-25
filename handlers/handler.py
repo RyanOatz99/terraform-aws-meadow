@@ -41,7 +41,7 @@ def signup(event, context):
     logger, meadow, table = initialise()
 
     # Connect to SES
-    ses = boto3.client("ses", region_name=meadow["region"])
+    ses = boto3.client("ses")
 
     # Load details from event
     try:
@@ -340,7 +340,7 @@ def send_newsletter(event, context):
         raise error
 
     # Connect to SES
-    ses = boto3.client("ses", region_name=meadow["region"])
+    ses = boto3.client("ses")
 
     # Set common newsletter attributes
     email_sent_date = datetime.now().strftime("%Y%m%d%H%M%S")

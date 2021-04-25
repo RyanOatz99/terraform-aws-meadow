@@ -41,7 +41,7 @@ flake8: .venv/bin/flake8 # Lints code using flake8
 conformity-tests: black isort flake8
 
 unit-tests: .venv/bin/pytest # Runs unit tests
-	cd handlers;../.venv/bin/pytest ../tests/unit
+	cd handlers;AWS_DEFAULT_REGION="us-east-1" ../.venv/bin/pytest ../tests/unit
 
 feature-tests: .venv/bin/pytest-bdd # Runs feature tests locally
 	echo $$GMAIL_ACCESS_TOKEN > gmail_token.json
